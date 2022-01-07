@@ -122,7 +122,7 @@ function renderPlaces(places) {
         text.setAttribute('gps-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
         text.setAttribute('title', place.name);
         text.setAttribute('href', 'http://www.example.com/');
-        text.setAttribute('scale', '15 15 15');
+        text.setAttribute('scale', '0.5 0.5 0.5');
 
         text.addEventListener('loaded', () => {
             window.dispatchEvent(new CustomEvent('gps-entity-place-loaded'))
