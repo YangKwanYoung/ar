@@ -31,7 +31,7 @@ window.onload = () => {
 function staticLoadPlaces() {
     return [
     	 {
-             name: "사무실",
+             name: "office",
              location: {
                  lat: 37.413210, 
                  lng: 127.129945
