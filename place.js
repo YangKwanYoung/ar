@@ -121,7 +121,7 @@ function renderPlaces(places) {
         let text = document.createElement('a-link');
         text.setAttribute('gps-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
         text.setAttribute('title', place.name);
-        text.setAttribute('href', 'javascript:alert("한글")');
+        text.setAttribute('href', 'javascript:alert("한글11111")');
         text.setAttribute('scale', '0.5 0.5 0.5');
 
         text.addEventListener('loaded', () => {
