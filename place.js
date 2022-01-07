@@ -109,7 +109,9 @@ function dynamicLoadPlaces(position) {
             console.error('Error with places API', err);
         })
 };
-
+function showPlaceName(placeName){
+    alert(placeName) ;
+}
 function renderPlaces(places) {
     let scene = document.querySelector('a-scene');
 
@@ -121,7 +123,7 @@ function renderPlaces(places) {
         let text = document.createElement('a-link');
         text.setAttribute('gps-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
         text.setAttribute('title', place.name);
-        text.setAttribute('href', 'javascript:alert("'+title+'")');
+        text.setAttribute('href', 'javascript:showPlaceName(title)');
         text.setAttribute('scale', '0.5 0.5 0.5');
 
         text.addEventListener('loaded', () => {
