@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>GeoAR.js TEST Project</title>
+    <script src='https://aframe.io/releases/0.9.2/aframe.min.js'></script>
+    <script src='https://raw.githack.com/jeromeetienne/AR.js/master/aframe/build/aframe-ar.min.js'></script>
+    <script src='https://rawgit.com/donmccurdy/aframe-extras/master/dist/aframe-extras.loaders.min.js'></script>
+<script>
+// Place Object 저장 배열 생성
+const loadPlaces = function () {
+    const PLACES = [
+          {
+              name: "사무실",
+              location: {
+                  lat: 37.413210, 
+                  lng: 127.129945
+              }
+          },
+          { 
+              name: "사무실2",
+              location: {  
+            	  lat: 37.413185, 
+                  lng: 127.129935
+              }
+          },
+          {
+              name: "사무실3",
+              location: {
+            	  lat: 37.4131869, 
+                  lng: 127.1299709
+              }
+          }
+          ,
+          {
+              name: "사무실3",
+              location: {
+            	  lat: 37.4131869, 
+                  lng: 127.1299709
+              }
+          }
+          ,
+          {
+              name: "사무실5",
+              location: {
+            	  lat: 37.4131151, 
+                  lng: 127.1299483
+              }
+          }
+          ,
+          {
+              name: "사무실6",
+              location: { 
+            	  lat: 37.4131225, 
+                  lng: 127.1299816
+              }
+          }
+    ];
+    return Promise.resolve(PLACES);
+}
+
+// Place Object 추가
+window.onload = () => {
+    const scene = document.querySelector('a-scene');
+    return navigator.geolocation.getCurrentPosition(function (position) {
+        console.log("현재 내위치는 : " +position.coords.latitude+"," + position.coords.longitude  );
+        
+        loadPlaces().then((places) => {
+                places.forEach((place) => {
+                    const latitude = place.location.lat;
+                    const longitude = place.location.lng;
+					 
+                    const icon = document.createElement('a-image');
+                    icon.setAttribute('gps-entity-place', `latitude: ${latitude}; longitude: ${longitude}`);
+                    icon.setAttribute('src', '../dtjp/lib/images/gis/icon_mark_blue.png');                        
+                    icon.setAttribute('scale', '0.1, 10');
+                    scene.appendChild(icon);
+                });
+            })
+        },
+        (err) => console.error('Error in retrieving position', err),
+        {
+            enableHighAccuracy: true,
+            maximumAge: 0,
+            timeout: 27000,
+        }
+    );
+};
+</script>
+</head>
+
+<body style='margin: 0; overflow: hidden;'>
+    <a-scene
+        debug
+        cursor='rayOrigin: mouse; fuse: true; fuseTimeout: 0;'
+        raycaster="objects: [gps-entity-place];"
+        vr-mode-ui="enabled: false"
+        embedded
+        arjs='sourceType: webcam; sourceWidth:640; sourceHeight:480; displayWidth: 640; displayHeight:480; debugUIEnabled: false;'>
+         <a-camera gps-camera rotation-reader>		</a-camera>
+    </a-scene>
+   
+</body>
+</html>
