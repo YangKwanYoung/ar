@@ -1,0 +1,329 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-event-set-component@3.0.3/dist/aframe-event-set-component.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
+    <script src="https://unpkg.com/aframe-text-geometry-component@^0.5.0/dist/aframe-text-geometry-component.min.js"></script>
+    <script src="https://code.jquery.com/jquery-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/1.3.1/proj4.js"></script>
+    <!-- 지도API Include -->
+    <link rel="stylesheet" href="https://dxlive.ex.co.kr:8090/exmap/api/base.css" type="text/css" />
+    <script type="text/javascript" src="https://dxlive.ex.co.kr:8090/exmap/js/api/libs/proj4js-2.5.0/proj4.js"></script>
+    <link rel="stylesheet" href="https://dxlive.ex.co.kr:8090/exmap/css/api/nsip/2d/nsip-base.css" type="text/css" />
+    <script src="https://dxlive.ex.co.kr:8090/exmap/js/api/libs/turf/5.1.6/turf.js" type="text/javascript"></script>
+    <script src="https://dxlive.ex.co.kr:8090/exmap/js/api/map/openlayers/build/ol-debug.js" type="text/javascript"></script>
+    <script src="https://dxlive.ex.co.kr:8090/exmap/js/api/map/mapapi/ol-patch.js" type="text/javascript"></script>
+    <script src="https://dxlive.ex.co.kr:8090/exmap/js/api/map/mapapi/mapapi.js" type="text/javascript"></script>
+    <script src="https://dxlive.ex.co.kr:8090/exmap/js/api/map/mapapi/mapcontrol.js" type="text/javascript"></script>
+    <script src="https://dxlive.ex.co.kr:8090/exmap/js/api/nsip/utils/nsip-utils.js" type="text/javascript"></script>
+    <script>
+      // insertCallLog 방지
+      himap.precision.utils.Log = {
+        send: function (apikCrtfnVal, funcNm) {}
+      };
+    </script>
+    <script src="https://dxlive.ex.co.kr:8090/exmap/js/api/nsip/2d/map2d.js" type="text/javascript"></script>
+
+    <script>
+      himap.precision.utils.immutable.MAP2D_SERVER_BASE_PATH = 'https://dxlive.ex.co.kr:8090/geoserver/ex/';
+
+      himap.precision.utils.immutable.VWORLD_PROXY = '';
+      himap.precision.utils.immutable.VWORLD_API_KEY = '4473EBBE-CBB5-3644-BEBF-CDFA5405BDC7';
+
+      var DTJP_MAP_IMAGE_PATH = 'https://dxjisa.hijjang.duckdns.org/dtjp/lib/images/gis/';
+      ol.DEBUG = false;
+    </script>
+    <link rel="stylesheet" href="https://dxjisa.hijjang.duckdns.org/dtjp/lib/css/dtjpCommonMap.css" type="text/css" />
+    <script src="https://dxjisa.hijjang.duckdns.org/js/cmm/ol-ext/ol-ext.js"></script>
+    <script src="https://dxjisa.hijjang.duckdns.org/js/cmm/dtjpCommonMap.js"></script>
+
+    <style>
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        margin: 0;
+      }
+      #arWrap {
+        /* position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0;
+        bottom: 200px; */
+      }
+
+      #mapWrap {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 300px;
+        height: 300px;
+        border: 2px solid red;
+      }
+
+      #mapTarget {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+
+    <script>
+      AFRAME.registerComponent('change-color-on-hover', {
+        schema: {
+          color: { default: 'red' }
+        },
+
+        init: function () {
+          var data = this.data;
+          var el = this.el; // <a-box>
+          var defaultColor = el.getAttribute('material').color;
+
+          el.addEventListener('mouseenter', function () {
+            el.setAttribute('color', data.color);
+          });
+
+          el.addEventListener('mouseleave', function () {
+            el.setAttribute('color', defaultColor);
+          });
+          loadPrecision();
+          //   window.addEventListener('gps-camera-update-position', function (e) {
+          //     console.info(e.detail.position);
+          //     currentPosition = e.detail.position;
+          //     // if (this.loaded === false) {
+          //     //   this._loadPeaks(e.detail.position.longitude, e.detail.position.latitude);
+          //     //   this.loaded = true;
+          //     // }
+
+          //     if (!precisionLoaded) {
+          //       loadPrecision();
+          //     }
+          //   });
+        }
+      });
+    </script>
+  </head>
+
+  <body style="margin: 0; overflow: hidden">
+    <a-scene embedded loading-screen="enabled: false;" arjs="sourceType: webcam; debugUIEnabled: false;">
+      <a-assets>
+        <a-asset-item id="NanumGothicRegularFont" src="https://hijjang.duckdns.org/ar/fonts/NanumGothic Light_Regular.json"></a-asset-item>
+      </a-assets>
+      <a-camera
+        gps-camera="simulateLatitude: 36.271528; simulateLongitude: 127.741113; simulateAltitude: 100"
+        rotation-reader
+        look-controls-enabled="false"
+        arjs-look-controls="smoothingFactor: 0.1"
+        rotation-reader
+        ><a-cursor></a-cursor
+      ></a-camera>
+    </a-scene>
+
+    <div id="mapWrap">
+      <div id="mapTarget"></div>
+    </div>
+  </body>
+</html>
+
+<script>
+  var currentPosition;
+  var precisionLoaded = false;
+  navigator.geolocation.getCurrentPosition((position) => {
+    currentPosition = position.coords;
+    //doSomething(position.coords.latitude, position.coords.longitude);
+    if (!precisionLoaded) {
+      loadPrecision();
+    }
+  });
+
+  // 정밀도로지도 조회
+  var queryPrecision = function (typeName, bbox, callback) {
+    var data = {
+      typeName: typeName,
+      SERVICE: 'WFS',
+      VERSION: '1.1.1',
+      REQUEST: 'GetFeature',
+      outputFormat: 'application/json',
+      srsName: 'EPSG:3857',
+      exceptions: 'application/json',
+      SRSName: 'urn:x-ogc:def:crs:EPSG:4326',
+      bbox: bbox
+      // cql_filter: cqlFilter
+    };
+
+    var wfsUrl = 'https://dxlive.ex.co.kr:8090/geoserver/ex/wfs';
+    $.ajax({
+      type: 'GET',
+      url: wfsUrl,
+      dataType: 'json',
+      data: data,
+      async: true,
+      cache: false
+    })
+      .done(function (resData) {
+        if (callback) {
+          callback(resData);
+        }
+      })
+      .fail(function (xhr, status, e) {
+        if (callback) {
+          callback(null);
+        }
+      });
+  };
+
+  var callback = function (wfsData) {
+    precisionLoaded = true;
+    //alert(wfsData.features.length);
+    createObject(wfsData.features);
+  };
+
+  var createObject = function (features) {
+    var ascene = $('a-scene');
+
+    var cnt = 0;
+    features.forEach((feature) => {
+      var prop = feature.properties;
+      var src = '',
+        textEntity = '',
+        lat,
+        lon,
+        alt = '';
+      //CPGTUNNEL
+      if (feature.id.startsWith('CPGBRIDGE')) {
+        src = 'assets/bridge.png';
+        textEntity = `<a-entity text-geometry="value: ${prop['name']}; font: #NanumGothicRegularFont" position="-1 1 -5"></a-entity>`;
+
+        lat = prop['ctlat'];
+        lon = prop['ctlon'];
+        alt = prop['cth'];
+      } else if (feature.id.startsWith('CPGINCLINE')) {
+        if (prop['type'] != '1') {
+          return;
+        }
+        src = 'assets/slope.png';
+        //textEntity = `<a-entity text-geometry="value: ${prop['name']}; font: #NanumGothicRegularFont" position="-1 1 -5"></a-entity>`;
+
+        lat = prop['ctlat'];
+        lon = prop['ctlon'];
+        alt = prop['cth'];
+      } else if (feature.id.startsWith('CPGTUNNEL')) {
+        src = 'assets/tunnel.png';
+        textEntity = `<a-entity text-geometry="value: ${prop['name']}; font: #NanumGothicRegularFont" position="-1 1 -5"></a-entity>`;
+
+        lat = prop['ctlat'];
+        lon = prop['ctlon'];
+        alt = prop['cth'];
+      } else if (feature.id.startsWith('CPOKMPOST')) {
+        src = 'assets/asset.png';
+        textEntity = `<a-entity text-geometry="value: ${
+          prop['direction'] + prop['distance']
+        }; font: #NanumGothicRegularFont" position="-1 1 -5"></a-entity>`;
+
+        lat = prop['lat'];
+        lon = prop['lon'];
+        alt = prop['h'];
+      } else {
+        return;
+      }
+
+      // 야탑으로 보정
+      // 127.12998550361874, 37.41315696715715
+      //   lat = lat + 1.1043280780771525;
+      //   lon = lon - 0.44441864024125266;
+
+      var object = `
+        <a-image
+          src="${src}"
+          look-at="[gps-camera]"
+          scale="4 4 4"
+          gps-entity-place="latitude: ${lat}; longitude: ${lon};"
+        >${textEntity}</a-image>`;
+
+      ascene.append(object);
+      cnt++;
+    });
+
+    //alert(cnt + '개 로딩됨');
+  };
+
+  var loadPrecision = function () {
+    if (precisionLoaded) {
+      return;
+    }
+    precisionLoaded = true;
+    var bbox = '14219482.705496065,4337511.591628713,14220777.357662644,4338615.151224581';
+    queryPrecision('CPGBRIDGE,CPGINCLINE,CPGTUNNEL,CPOKMPOST', bbox, callback);
+    // CPOKMPOST 이정
+    // CPOKMPOST_10 10m이정
+    // CPGBRIDGE 교량
+    // CPGINCLINE 사면
+    // CPGTUNNEL 터널
+  };
+
+  var precisionLayers = [
+    {
+      createLayerName: 'DTJPBASE',
+      serviceLayers: [
+        'APGROAD',
+        'APGPARKLOT',
+        'CPGTUNNEL',
+        'BPOTRAFFICSIGN',
+        'BPGROADSIGN',
+        'BPLLANEMARK',
+        'BPGVMS',
+        'CPOLCS',
+        'CPOKMPOST',
+        'CPOKMPOST_10',
+        'CPLSAFETY',
+        'CPOFACILDOT',
+        'CPGINCLINE',
+        'CPOCCTV',
+        'CPOLIGHT',
+        'CPODSTBX',
+        'CPORSU',
+        'CPGTUNNEL',
+        'CPGBRIDGE',
+        'CPGTOLLGATE',
+        'CPOVDS',
+        'CPGCULVERT'
+      ]
+    }
+  ];
+
+  var onSelectFeature = function (layerName, wfsData, evt) {
+    //console.info(wfsData);
+    var cameraPosition = ol.proj.transform(evt.coordinate, 'EPSG:3857', 'EPSG:4326');
+    var gpsCamera = `simulateLatitude: ${cameraPosition[1]}; simulateLongitude: ${cameraPosition[0]}; simulateAltitude: 100`;
+    $('a-camera').attr('gps-camera', gpsCamera);
+  };
+
+  var cameraPosition = [127.741113, 36.271528];
+  var gpsCamera = `simulateLatitude: ${cameraPosition[1]}; simulateLongitude: ${cameraPosition[0]}; simulateAltitude: 100`;
+  $('a-camera').attr('gps-camera', gpsCamera);
+
+  var center = ol.proj.transform([127.741113, 36.271528], 'EPSG:4326', 'EPSG:3857');
+
+  var dtjpMap = new DtjpCommonMap('mapTarget', {
+    center: center, // 초기 위치
+    zoom: 13, // 초기 줌,
+    isAddSlider: false,
+    isAddRotate: false,
+    precisionLayers: precisionLayers, // 정밀도로 레이어
+    isPrecisionQuery: false, // 지도 클릭시 정밀도로 레이어 조회 안함
+    //precisionOverlayId: precisionOverlayId,
+    // 기타 연계 레이어
+    //layers: [maintenanceLayer, workplaceLayer, vehicleLayer, accidentLayer, constructionLayer, droneLayer, radarLayer],
+    onSelectFeature: onSelectFeature,
+    addGeolocation: true,
+    addDefaultRotate: true,
+    addDefaultZoom: true
+  });
+
+  dtjpMap.showCenterPin();
+</script>
